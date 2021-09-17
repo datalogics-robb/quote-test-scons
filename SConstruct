@@ -5,9 +5,6 @@ import SCons.Util
 
 
 env = Environment()
-samples_manifest = set()
-csproj_files = set()
-samples = []
 CSPROJ_CONTENTS = ('''
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -21,13 +18,13 @@ CSPROJ_CONTENTS = ('''
     <OutputPath>..\..\..\Binaries</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <OutputPath>..\..\..\Binaries</OutputPath>
+    <OutputPath> @DOLLAH@@OPAREN@ </OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutputPath>..\..\..\Binaries</OutputPath>
+    <OutputPath>DOLLAH is @DOLLAH@ </OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <OutputPath>..\..\..\Binaries</OutputPath>
+    <OutputPath> OPAREN is @OPAREN@ </OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Datalogics.PDFL">
@@ -43,7 +40,10 @@ CSPROJ_CONTENTS = ('''
 # We point the csproj files to a different path for
 # For distribution we need this @HINT_PATH@: <HintPath>..\..\..\Binaries\Datalogics.PDFL.dll</HintPath>
 # For testing, we need this @HINT_PATH@:  <HintPath>..\..\..\NETCore\bin\$(Platform)\$(Configuration)\Datalogics.PDFL.dll</HintPath>
-
+env.Replace(OPAREN=r'(',
+            DOLLAH=r'$$')
 testproj = env.Textfile(target='GenFile.csproj',
                         source=CSPROJ_CONTENTS,
-                        SUBST_DICT={'@HINT_PATH@': r'NETCore\bin\$($Platform$)\$($Configuration$)'})
+                        SUBST_DICT={'@HINT_PATH@': r'NETCore\bin\@DOLLAH@${OPAREN}Platform)\@DOLLAH@${OPAREN}Configuration)',
+                                    '@OPAREN@': '${OPAREN}',
+                                    '@DOLLAH@': '${DOLLAH}',})
